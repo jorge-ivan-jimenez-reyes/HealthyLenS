@@ -1,4 +1,5 @@
 import cv2
+from detection.hand_detection import detect_hands
 from detection.product_detection import detect_products
 from detection.emotion_detection import detect_emotions
 from processing.filters import apply_filters
@@ -25,7 +26,10 @@ def main():
             print("Error: No se pudo capturar el video.")
             break
 
-        # Detección de productos en el cuadro
+        # Detección de manos
+        frame, hand_results = detect_hands(frame)
+
+        # Detección de productos
         products = detect_products(frame)
 
         # Detección de emociones del usuario

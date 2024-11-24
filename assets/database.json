@@ -1,0 +1,12 @@
+{
+  "apple": {
+    "category": "fruit",
+    "healthy": true,
+    "recommendations": ["banana", "orange"]
+  },
+  "chips": {
+    "category": "snack",
+    "healthy": false,
+    "recommendations": ["baked chips", "nuts"]
+  }
+}
