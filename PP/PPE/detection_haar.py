@@ -1,44 +1,75 @@
+from ultralytics import YOLO
 import cv2
+import os  # Importar el módulo para verificar rutas de archivos
 
-def run_haar_detection():
+# Lista de clases del dataset COCO (puedes reducirla según lo que necesites)
+classNames = [
+    "person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train",
+    "truck", "boat", "traffic light", "fire hydrant", "stop sign", "parking meter",
+    "bench", "bird", "cat", "dog", "horse", "sheep", "cow", "elephant", "bear",
+    "zebra", "giraffe", "backpack", "umbrella", "handbag", "tie", "suitcase",
+    "frisbee", "skis", "snowboard", "sports ball", "kite", "baseball bat",
+    "baseball glove", "skateboard", "surfboard", "tennis racket", "bottle",
+    "wine glass", "cup", "fork", "knife", "spoon", "bowl", "banana", "apple",
+    "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza", "donut",
+    "cake", "chair", "sofa", "pottedplant", "bed", "diningtable", "toilet",
+    "tvmonitor", "laptop", "mouse", "remote", "keyboard", "cell phone", "microwave",
+    "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors",
+    "teddy bear", "hair drier", "toothbrush"
+]
+
+
+def load_yolo_model():
     """
-    Detección de objetos con clasificadores Haar y aplicación de filtros en tiempo real.
+    Carga el modelo YOLO desde un archivo local.
     """
-    brightness, blur, hue = 50, 1, 0
-    haar_cascade = cv2.CascadeClassifier("assets/haarcascades/haarcascade_frontalface_default.xml")
-    cap = cv2.VideoCapture(1)
-    cap.set(3, 1280)
-    cap.set(4, 720)
+    model_path = "PP/PPE/weights/yolov8n.pt"  # Ruta al archivo descargado
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"El modelo YOLOv8 no se encuentra en la ruta especificada: {model_path}")
 
-    # Crear ventana para sliders
-    cv2.namedWindow("Controles")
-    cv2.createTrackbar("Brillo", "Controles", brightness, 100, lambda x: None)
-    cv2.createTrackbar("Desenfoque", "Controles", blur, 20, lambda x: None)
-    cv2.createTrackbar("Tonalidad", "Controles", hue, 180, lambda x: None)
+    print(f"Cargando modelo YOLO desde {model_path}...")
+    model = YOLO(model_path)  # Cargar el modelo desde la ruta local
+    print("Modelo YOLO cargado correctamente.")
+    return model
+def process_frame(frame, model):
+    """
+    Procesa un frame para detectar objetos usando YOLO y dibuja los resultados.
+    """
+    results = model(frame, stream=True)
 
-    print("Iniciando detección con clasificadores Haar. Presiona 'q' para salir.")
+    for r in results:
+        for box in r.boxes:
+            x1, y1, x2, y2 = map(int, box.xyxy[0])
+            cls = int(box.cls[0])
+            label = classNames[cls]
+            conf = round(float(box.conf[0]) * 100, 2)
+
+            # Dibujar bounding box y etiqueta
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            cv2.putText(frame, f"{label} {conf}%", (x1, y1 - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+    return frame
+
+def run_yolo_detection():
+    """
+    Ejecuta la detección de objetos usando YOLO en tiempo real.
+    """
+    model = load_yolo_model()
+    cap = cv2.VideoCapture(1)  # Cambia a 0 si usas una cámara externa
+    cap.set(3, 1280)  # Ancho de la ventana
+    cap.set(4, 720)   # Alto de la ventana
+
+    print("Iniciando detección de objetos. Presiona 'q' para salir.")
     while True:
         ret, frame = cap.read()
         if not ret:
             print("Error: No se pudo capturar el video.")
             break
 
-        # Obtener valores de sliders
-        brightness = cv2.getTrackbarPos("Brillo", "Controles")
-        blur = cv2.getTrackbarPos("Desenfoque", "Controles")
-        hue = cv2.getTrackbarPos("Tonalidad", "Controles")
-
-        # Detección Haar
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        objects = haar_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
-        for (x, y, w, h) in objects:
-            roi = frame[y:y + h, x:x + w]
-            if roi.size > 0:
-                roi = apply_filters(roi, brightness, blur, hue)
-                frame[y:y + h, x:x + w] = roi
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
-        cv2.imshow("Detección y Filtros", frame)
+        # Procesar el frame
+        frame = process_frame(frame, model)
+        cv2.imshow("Detección YOLO", frame)
 
         # Salir con 'q'
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -46,15 +77,3 @@ def run_haar_detection():
 
     cap.release()
     cv2.destroyAllWindows()
-
-def apply_filters(roi, brightness, blur, hue):
-    """
-    Aplica filtros de brillo, desenfoque y tonalidad a una región de interés.
-    """
-    roi = cv2.convertScaleAbs(roi, alpha=brightness / 50, beta=0)
-    if blur > 0:
-        roi = cv2.GaussianBlur(roi, (blur * 2 + 1, blur * 2 + 1), 0)
-    hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-    hsv[:, :, 0] = (hsv[:, :, 0] + hue) % 180
-    roi = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
-    return roi
