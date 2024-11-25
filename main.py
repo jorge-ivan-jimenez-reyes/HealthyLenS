@@ -3,12 +3,10 @@ from tkinter import messagebox
 from PP.PPE.pdetection import load_model, process_frame
 from PP.PPE.detection_haar import run_haar_detection
 from PP.PPE.emotion_detection import detect_emotion
+from PP.PPE.gesture_detection import detect_and_filter_objects
 
 import cv2
 
-# Callback para sliders
-def on_trackbar_change(val):
-    pass
 
 def run_object_classification():
     """
@@ -37,11 +35,13 @@ def run_object_classification():
     cap.release()
     cv2.destroyAllWindows()
 
+
 def run_filter_application():
     """
     Ejecuta la aplicación de filtros y detección con clasificadores Haar.
     """
     run_haar_detection()
+
 
 def run_emotion_detection():
     """
@@ -49,14 +49,23 @@ def run_emotion_detection():
     """
     detect_emotion()
 
+
+def run_gesture_detection():
+    """
+    Ejecuta la detección de gestos de manos con aplicación de filtros.
+    """
+    detect_and_filter_objects()
+
+
 def show_about():
     """
     Muestra información sobre la aplicación.
     """
     messagebox.showinfo(
         "Acerca de",
-        "Healthy Lens\n\nSistema de clasificación de objetos y detección de emociones con filtros.\n\nDesarrollado con Python y OpenCV."
+        "Healthy Lens\n\nSistema de clasificación de objetos, detección de emociones y gestos con filtros.\n\nDesarrollado con Python, OpenCV y Mediapipe."
     )
+
 
 def main():
     """
@@ -64,7 +73,7 @@ def main():
     """
     root = tk.Tk()
     root.title("Healthy Lens")
-    root.geometry("500x400")
+    root.geometry("500x500")
 
     # Título
     tk.Label(root, text="Healthy Lens", font=("Helvetica", 24, "bold")).pack(pady=20)
@@ -73,11 +82,13 @@ def main():
     tk.Button(root, text="Clasificación de Objetos (YOLO)", font=("Helvetica", 16), command=run_object_classification).pack(pady=10)
     tk.Button(root, text="Detección y Filtros (Clasificadores Haar)", font=("Helvetica", 16), command=run_filter_application).pack(pady=10)
     tk.Button(root, text="Detección de Emociones", font=("Helvetica", 16), command=run_emotion_detection).pack(pady=10)
+    tk.Button(root, text="Detección de Gestos (Manos)", font=("Helvetica", 16), command=run_gesture_detection).pack(pady=10)
     tk.Button(root, text="Acerca de", font=("Helvetica", 16), command=show_about).pack(pady=10)
     tk.Button(root, text="Salir", font=("Helvetica", 16), command=root.destroy).pack(pady=10)
 
     # Iniciar la interfaz gráfica
     root.mainloop()
+
 
 if __name__ == "__main__":
     main()
