@@ -69,10 +69,40 @@ def show_about():
     """
     messagebox.showinfo(
         "Acerca de",
-        "Healthy Lens\n\nSistema integral de detección y clasificación.\n\n"
+        "Sistema Integral de Detección y Clasificación\n\n"
         "Incluye detección de objetos (YOLO), emociones y gestos.\n\n"
         "Desarrollado con Python, OpenCV, Mediapipe y YOLOv8."
     )
+
+
+def create_custom_button(root, text, command):
+    """
+    Crea un botón personalizado con estilos modernos.
+    """
+    def on_enter(e):
+        btn.config(bg="#45a049")  # Cambiar color al pasar el mouse
+
+    def on_leave(e):
+        btn.config(bg="#4CAF50")  # Volver al color original
+
+    btn = tk.Button(
+        root,
+        text=text,
+        font=("Helvetica", 16),
+        bg="#4CAF50",
+        fg="white",
+        activebackground="#3e8e41",
+        activeforeground="white",
+        command=command,
+        relief="flat",
+        bd=0,
+        highlightthickness=0,
+        width=30,
+        height=2,
+    )
+    btn.bind("<Enter>", on_enter)
+    btn.bind("<Leave>", on_leave)
+    return btn
 
 
 def main():
@@ -80,25 +110,29 @@ def main():
     Interfaz gráfica para el menú principal.
     """
     root = tk.Tk()
-    root.title("Healthy Lens")
-    root.geometry("600x600")
+    root.title("Sistema Integral de Detección y Clasificación")
+    root.geometry("600x700")  # Tamaño más grande
+
+    # Personalización del fondo
+    root.config(bg="#F0F0F0")
 
     # Título
-    tk.Label(root, text="Healthy Lens", font=("Helvetica", 28, "bold")).pack(pady=20)
+    title_label = tk.Label(
+        root,
+        text="Sistema Integral de Detección y Clasificación",
+        font=("Helvetica", 24, "bold"),
+        bg="#F0F0F0",
+        fg="#333",
+    )
+    title_label.pack(pady=30)
 
-    # Botones del menú
-    tk.Button(root, text="Clasificación de Objetos Personalizados", font=("Helvetica", 16),
-              command=run_object_classification).pack(pady=10)
-    tk.Button(root, text="Detección de Objetos Generales (COCO)", font=("Helvetica", 16),
-              command=run_general_object_detection).pack(pady=10)
-    tk.Button(root, text="Detección y Filtros (Clasificadores Haar)", font=("Helvetica", 16),
-              command=run_filter_application).pack(pady=10)
-    tk.Button(root, text="Detección de Emociones", font=("Helvetica", 16),
-              command=run_emotion_detection).pack(pady=10)
-    tk.Button(root, text="Detección de Gestos (Manos)", font=("Helvetica", 16),
-              command=run_gesture_detection).pack(pady=10)
-    tk.Button(root, text="Acerca de", font=("Helvetica", 16), command=show_about).pack(pady=10)
-    tk.Button(root, text="Salir", font=("Helvetica", 16), command=root.destroy).pack(pady=20)
+    # Crear botones personalizados
+    create_custom_button(root, "Clasificación de Objetos Personalizados", run_object_classification).pack(pady=15)
+    create_custom_button(root, "Detección de Objetos Generales (COCO)", run_general_object_detection).pack(pady=15)
+    create_custom_button(root, "Detección de Emociones", run_emotion_detection).pack(pady=15)
+    create_custom_button(root, "Detección de Gestos (Manos)", run_gesture_detection).pack(pady=15)
+    create_custom_button(root, "Acerca de", show_about).pack(pady=15)
+    create_custom_button(root, "Salir", root.destroy).pack(pady=30)
 
     # Iniciar la interfaz gráfica
     root.mainloop()

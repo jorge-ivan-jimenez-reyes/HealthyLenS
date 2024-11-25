@@ -94,15 +94,20 @@ def process_frame(frame, model, brightness=50, blur=0, hue=0):
                 roi_filtered = apply_filter(roi, filter_type)
                 frame[y1:y2, x1:x2] = roi_filtered  # Reemplazar en la imagen original
 
-            # Dibujar bounding box y texto
-            cvzone.putTextRect(frame, f'{current_class} {conf}%',
-                               (max(0, x1), max(35, y1)),
-                               scale=0.5, thickness=1, colorB=(0, 255, 0),
-                               colorT=(255, 255, 255), offset=5)
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 3)
+            # Estilo del bounding box y etiqueta
+            color = classColors.get(current_class, (0, 255, 255))
+            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 3)
 
-            # Mostrar filtro aplicado
-            cv2.putText(frame, f"Filtro: {filter_type}", (x1, y1 - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
+            # Texto en la etiqueta
+            label = f'{current_class}: {conf}%'
+            filter_label = f"Filtro: {filter_type}"
+            health_label = f"Saludabilidad: {health_score}"
+
+            # Dibujar la etiqueta usando cvzone con texto más grande
+            cvzone.putTextRect(frame, label, (x1, y1 - 45), scale=1, thickness=2, offset=10, colorB=color)
+            cvzone.putTextRect(frame, filter_label, (x1, y1 - 15), scale=0.8, thickness=2, offset=10,
+                               colorB=(0, 255, 255))
+            cvzone.putTextRect(frame, health_label, (x1, y2 + 15), scale=0.8, thickness=2, offset=10,
+                               colorB=(255, 255, 255))
 
     return frame
