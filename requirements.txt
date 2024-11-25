@@ -4,3 +4,9 @@ mediapipe==0.10.15
 tensorflow==2.18.0
 numpy==1.26.0
 pillow==10.0.0
+torch
+torchvision
+opencv-python
+opencv-contrib-python
+yolov5
+numpy

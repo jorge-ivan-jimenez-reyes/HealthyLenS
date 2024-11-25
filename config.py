@@ -1,11 +1,6 @@
-# Configuración general del proyecto
-
-# Rango de colores HSV para segmentación
 COLOR_RANGES = {
-    "red": [(0, 120, 70), (10, 255, 255)],
-    "green": [(36, 100, 100), (86, 255, 255)],
-    "blue": [(94, 80, 2), (126, 255, 255)],
+    "red": [(0, 120, 70), (10, 255, 255)],  # Rojo
+    "green": [(36, 100, 100), (86, 255, 255)],  # Verde
+    "blue": [(94, 80, 2), (126, 255, 255)],  # Azul
+    "yellow": [(20, 100, 100), (30, 255, 255)]  # Amarillo
 }
-
-# Ruta de los clasificadores Haar
-HAAR_CASCADES_PATH = "assets/haarcascades/"
